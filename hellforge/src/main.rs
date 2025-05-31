@@ -1,20 +1,44 @@
-use std::cmp::Ordering;
-use std::io;
+use chrono::Local;
+use clap::Parser;
+use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use std::path::Path;
+use std::sync::mpsc::channel;
+use std::time::Duration;
 
-fn main() {
-    println!("Enter value: ");
-    let mut input = String::new();
-    let comp = 5;
+#[derive(Parser)]
+struct Args {
+    #[arg(short, long, default_value = "./watched")]
+    path: String,
+}
 
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Error reading input!");
+fn main() -> notify::Result<()> {
+    let args = Args::parse();
 
-    let input: u32 = input.trim().parse().expect("Enter a number!");
+    std::fs::create_dir_all(&args.path).expect("Failed to create directory!");
+    println!("Watching folder {}", &args.path);
 
-    match input.cmp(&comp) {
-        Ordering::Less => println!("Input is Less!"),
-        Ordering::Greater => println!("Input is Greater!"),
-        Ordering::Equal => println!("Right!"),
+    let path = Path::new(&args.path);
+
+    let (tx, rx) = channel();
+
+    let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
+    watcher.watch(&path, RecursiveMode::Recursive)?;
+
+    loop {
+        match rx.recv_timeout(Duration::from_secs(1)) {
+            Ok(Ok(event)) => log_event(event),
+            Ok(Err(e)) => eprintln!("Watch Error: {:?}", e),
+            Err(_) => continue,
+        }
+    }
+}
+
+fn log_event(event: Event) {
+    let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
+    println!("\n[{}]", timestamp);
+
+    for path in event.paths {
+        let kind = format!("{:?}", event.kind);
+        println!("[{}] - {}", kind, path.display());
     }
 }
