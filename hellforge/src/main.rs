@@ -1,6 +1,8 @@
 use chrono::Local;
 use clap::Parser;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use std::fs::{File, OpenOptions};
+use std::io::Write;
 use std::path::Path;
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -18,6 +20,9 @@ fn main() -> notify::Result<()> {
     println!("Watching folder {}", &args.path);
 
     let path = Path::new(&args.path);
+    let log_path = Path::new("./src/log/watch_log.txt");
+    let mut log = OpenOptions::new().append(true).open(&log_path);
+    let log_file = File::create(&log_path)?;
 
     let (tx, rx) = channel();
 
@@ -26,19 +31,27 @@ fn main() -> notify::Result<()> {
 
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {
-            Ok(Ok(event)) => log_event(event),
+            Ok(Ok(event)) => match log {
+                Ok(ref mut file) => {
+                    log_event(event, file);
+                }
+                Err(ref e) => {
+                    eprintln!("Error opening watch_log!: {}", e);
+                }
+            },
             Ok(Err(e)) => eprintln!("Watch Error: {:?}", e),
             Err(_) => continue,
         }
     }
 }
 
-fn log_event(event: Event) {
+fn log_event(event: Event, log: &mut File) {
     let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
     println!("\n[{}]", timestamp);
 
     for path in event.paths {
         let kind = format!("{:?}", event.kind);
+        writeln!(log, "[{}] [{}] - {}", timestamp, kind, path.display());
         println!("[{}] - {}", kind, path.display());
     }
 }

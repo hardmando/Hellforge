@@ -1,0 +1,11 @@
+[2025-05-31 16:51:24] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:24] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:25] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:25] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test2
+[2025-05-31 16:51:25] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test2
