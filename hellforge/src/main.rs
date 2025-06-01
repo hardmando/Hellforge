@@ -1,8 +1,10 @@
-use chrono::Local;
+mod logger;
 use clap::Parser;
+use logger::log_event;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use reqwest::blocking::Client;
+use serde::Serialize;
 use std::fs::{File, OpenOptions};
-use std::io::Write;
 use std::path::Path;
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -22,7 +24,6 @@ fn main() -> notify::Result<()> {
     let path = Path::new(&args.path);
     let log_path = Path::new("./src/log/watch_log.txt");
     let mut log = OpenOptions::new().append(true).open(&log_path);
-    let log_file = File::create(&log_path)?;
 
     let (tx, rx) = channel();
 
@@ -42,16 +43,5 @@ fn main() -> notify::Result<()> {
             Ok(Err(e)) => eprintln!("Watch Error: {:?}", e),
             Err(_) => continue,
         }
-    }
-}
-
-fn log_event(event: Event, log: &mut File) {
-    let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
-    println!("\n[{}]", timestamp);
-
-    for path in event.paths {
-        let kind = format!("{:?}", event.kind);
-        writeln!(log, "[{}] [{}] - {}", timestamp, kind, path.display());
-        println!("[{}] - {}", kind, path.display());
     }
 }
