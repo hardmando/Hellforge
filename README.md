@@ -17,5 +17,5 @@ A modular, cross-platform file synchronization tool built with:
 
 ## 🗂 Project Structure
 Hellforge/
-\n├── hellforge/ # Rust CLI that watches file changes
+\b├── hellforge/ # Rust CLI that watches file changes
 \n└── server/ # Go server to receive and store events
