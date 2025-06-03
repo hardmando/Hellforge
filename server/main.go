@@ -21,13 +21,6 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 	eventJson := r.FormValue("event")
 	var event SyncEvent
 
-	// err := json.NewDecoder(r.Body).Decode(&event)
-	// if err != nil {
-	//	http.Error(w, "Invalid JSON", http.StatusBadRequest)
-	//	return
-
-	//}
-
 	if err := json.Unmarshal([]byte(eventJson), &event); err != nil {
 		http.Error(w, "Invalid event JSON", http.StatusBadRequest)
 		return
@@ -39,8 +32,8 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-
-	dstPath := "storage/uploads" + handler.Filename
+	dstPath := "uploads/" + event.Path
+	var str string = handler.Filename
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		http.Error(w, "Could not save file", http.StatusInternalServerError)
@@ -50,7 +43,7 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 
-	log.Printf("Received Event for %s and saved at %s", event.Path, dst)
+	log.Printf("Received Event for %s and saved at %s, file: %s", event.Path, dst.Name(), str)
 	w.WriteHeader(http.StatusOK)
 }
 

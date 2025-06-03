@@ -2,6 +2,7 @@ use reqwest::blocking::Client;
 use reqwest::blocking::multipart;
 use serde::Serialize;
 use std::fs::File;
+use std::path::Path;
 
 #[derive(Serialize)]
 pub struct SyncEvent {
@@ -13,7 +14,9 @@ pub struct SyncEvent {
 pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
-    let file = File::open(&event.path)?;
+    let path = Path::new(&event.path);
+    let file = File::open(path)?;
+
     let form = multipart::Form::new()
         .text("event", serde_json::to_string(event)?)
         .file("file", &event.path)?;

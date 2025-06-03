@@ -1,10 +1,8 @@
 mod logger;
 use clap::Parser;
 use logger::log_event;
-use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
-use reqwest::blocking::Client;
-use serde::Serialize;
-use std::fs::{File, OpenOptions};
+use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
+use std::fs::OpenOptions;
 use std::path::Path;
 use std::sync::mpsc::channel;
 use std::time::Duration;
