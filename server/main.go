@@ -32,9 +32,10 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	dstPath := "uploads/" + event.Path
-	var str string = handler.Filename
+	dstPath := "uploads/" + handler.Filename
+	metaPath := "uploads/" + handler.Filename + ".meta"
 	dst, err := os.Create(dstPath)
+	// meta, err := os.Create(metaPath)
 	if err != nil {
 		http.Error(w, "Could not save file", http.StatusInternalServerError)
 		return
@@ -43,7 +44,10 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 
-	log.Printf("Received Event for %s and saved at %s, file: %s", event.Path, dst.Name(), str)
+	// Create meta file with filePath
+	os.WriteFile(metaPath, []byte(event.Path), 0666)
+
+	log.Printf("Received Event for %s and saved at %s", event.Path, dst.Name())
 	w.WriteHeader(http.StatusOK)
 }
 

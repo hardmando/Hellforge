@@ -40,3 +40,6 @@
 [2025-06-01 14:54:17] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-01 14:54:17] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-01 14:54:17] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 15:05:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 15:05:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 15:05:10] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
