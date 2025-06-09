@@ -13,6 +13,7 @@ type SyncEvent struct {
 	Timestamp string `json:"timestamp"`
 	EventKind string `json:"event_kind"`
 	Path      string `json:"path"`
+	MetaPath  string `json:"metaPath"`
 }
 
 func handleEvent(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +36,6 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 	dstPath := "uploads/" + handler.Filename
 	metaPath := "uploads/" + handler.Filename + ".meta"
 	dst, err := os.Create(dstPath)
-	// meta, err := os.Create(metaPath)
 	if err != nil {
 		http.Error(w, "Could not save file", http.StatusInternalServerError)
 		return
@@ -44,8 +44,9 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 
-	// Create meta file with filePath
-	os.WriteFile(metaPath, []byte(event.Path), 0666)
+	// Trim path to watched folder
+	meta_path := "/" + r.FormValue("metaPath")
+	os.WriteFile(metaPath, []byte(meta_path), 0666)
 
 	log.Printf("Received Event for %s and saved at %s", event.Path, dst.Name())
 	w.WriteHeader(http.StatusOK)

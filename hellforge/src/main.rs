@@ -32,7 +32,7 @@ fn main() -> notify::Result<()> {
         match rx.recv_timeout(Duration::from_secs(1)) {
             Ok(Ok(event)) => match log {
                 Ok(ref mut file) => {
-                    log_event(event, file);
+                    log_event(event, file, path);
                 }
                 Err(ref e) => {
                     eprintln!("Error opening watch_log!: {}", e);
@@ -43,3 +43,4 @@ fn main() -> notify::Result<()> {
         }
     }
 }
+

@@ -9,6 +9,7 @@ pub struct SyncEvent {
     pub timestamp: String,
     pub event_kind: String,
     pub path: String,
+    pub watched_path: String,
 }
 
 pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
@@ -17,8 +18,24 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new(&event.path);
     let file = File::open(path)?;
 
+    let full = Path::new(&event.path).canonicalize().ok().unwrap();
+    let base = Path::new(&event.watched_path).canonicalize().ok().unwrap();
+
+    let rel_path = full
+        .strip_prefix(base)
+        .map_err(|e| format!("Could not strip prefix: {}", e))?;
+
+    //    let meta_path = serde_json::to_string(&format!("/{}", rel_path.display()))?;
+    let meta_path = rel_path
+        .to_path_buf()
+        .into_os_string()
+        .into_string()
+        .unwrap();
+    println!("{}", meta_path);
+
     let form = multipart::Form::new()
         .text("event", serde_json::to_string(event)?)
+        .text("metaPath", meta_path)
         .file("file", &event.path)?;
 
     let res = client
