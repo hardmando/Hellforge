@@ -1,25 +1,122 @@
 mod logger;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use logger::log_event;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
-use std::fs::OpenOptions;
-use std::path::Path;
+use std::fmt::Error;
+use std::path::{self, Path};
 use std::sync::mpsc::channel;
 use std::time::Duration;
+use std::{fs::OpenOptions, ptr::null};
+mod config;
+use config::{load_config, save_config};
 
 #[derive(Parser)]
-struct Args {
-    #[arg(short, long, default_value = "./watched")]
-    path: String,
+#[command(name = "hellforge", about = "File sync service.", version)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Watch {
+        #[arg(short, long, default_value = "./watched")]
+        path: String,
+    },
+
+    Mode {
+        #[command(subcommand)]
+        command: ModeSubcommands,
+    },
+
+    Pull {},
+    Push {},
+}
+
+#[derive(Subcommand)]
+enum ModeSubcommands {
+    Set {
+        #[arg(value_parser = ["instant", "auto", "manual"])]
+        mode: String,
+    },
+    Get,
 }
 
 fn main() -> notify::Result<()> {
-    let args = Args::parse();
+    let cli = Cli::parse();
+    let mut watched_path = String::new();
+    let mut config = load_config().unwrap_or_default();
 
-    std::fs::create_dir_all(&args.path).expect("Failed to create directory!");
-    println!("Watching folder {}", &args.path);
+    match cli.command {
+        Commands::Watch { path } => {
+            println!(
+                "\n╔════════════════════╗
+                      \n║ Watching directory : {}
+                      \n╚════════════════════╝
+                ",
+                path
+            );
+            watched_path = path;
+            match config.mode.as_str() {
+                "instant" => {
+                    println!(
+                        "\n╔═══════════════╗
+                              \n║ Mode: Instant ║ 
+                              \n╚═══════════════╝"
+                    );
+                }
+                "auto" => {
+                    println!(
+                        "\n╔═══════════════╗
+                              \n║ Mode: Auto    ║
+                              \n║ Interval: {}  ║
+                              \n╚═══════════════╝",
+                        config.interval_in_seconds
+                    );
+                    // implement timed upload logic
+                }
+                "manual" => {
+                    println!(
+                        "\n╔══════════════╗
+                              \n║ Mode: Manual ║ 
+                              \n╚══════════════╝"
+                    );
+                    // just log the changes, don't upload
+                }
+                _ => {
+                    eprintln!(
+                        "\n╔═══════════════╗
+                               \n║ Mode Unknown! : {}  
+                               \n╚═══════════════╝",
+                        config.mode
+                    );
+                }
+            }
+        }
 
-    let path = Path::new(&args.path);
+        Commands::Pull {} => {
+            println!("⬇️ Pulling updates...");
+            // fetch files from server
+        }
+        Commands::Push {} => {
+            println!("📤 Uploading unsynced changes...");
+            // push all changes to server
+        }
+        Commands::Mode { command } => match command {
+            ModeSubcommands::Set { mode } => {
+                println!("✅ Mode set to: {}", mode);
+                config.mode = mode;
+                save_config(&config).expect("Failed to save config");
+            }
+            ModeSubcommands::Get => {
+                println!("🔧 Current mode: {}", config.mode);
+            }
+        },
+    }
+
+    assert_ne!(watched_path.is_empty(), true);
+
+    let path = path::Path::new(&watched_path);
     let log_path = Path::new("./src/log/watch_log.txt");
     let mut log = OpenOptions::new().append(true).open(&log_path);
 
@@ -43,4 +140,3 @@ fn main() -> notify::Result<()> {
         }
     }
 }
-

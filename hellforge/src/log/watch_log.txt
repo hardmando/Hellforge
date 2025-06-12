@@ -112,3 +112,10 @@
 [2025-06-08 21:55:28] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-08 21:55:28] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-08 21:55:28] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 21:57:05] [Create(Folder)] - /home/kira/Hellforge/hellforge/./watched/newDir
+[2025-06-08 21:57:16] [Create(File)] - /home/kira/Hellforge/hellforge/./watched/newDir/new_File
+[2025-06-08 21:57:16] [Modify(Metadata(Any))] - /home/kira/Hellforge/hellforge/./watched/newDir/new_File
+[2025-06-08 21:57:16] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/newDir/new_File
+[2025-06-08 22:12:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 22:12:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-08 22:12:10] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
