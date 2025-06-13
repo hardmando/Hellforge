@@ -2,7 +2,7 @@ mod logger;
 use clap::{Parser, Subcommand};
 use logger::log_event;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
-use std::fs::OpenOptions;
+use std::fs::{self, OpenOptions};
 use std::path::{self, Path};
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -196,6 +196,7 @@ fn main() -> notify::Result<()> {
 
     let (tx, rx) = channel();
 
+    fs::create_dir_all(path)?;
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     watcher.watch(&path, RecursiveMode::Recursive)?;
 
