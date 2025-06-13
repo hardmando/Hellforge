@@ -119,3 +119,7 @@
 [2025-06-08 22:12:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-08 22:12:10] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-08 22:12:10] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-12 20:19:48] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/watched/test
+[2025-06-12 20:20:52] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-12 20:20:52] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-12 20:20:52] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
