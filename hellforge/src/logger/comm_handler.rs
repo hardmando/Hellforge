@@ -1,3 +1,4 @@
+use reqwest::Error;
 use reqwest::blocking::Client;
 use reqwest::blocking::multipart;
 use serde::Serialize;
@@ -9,6 +10,7 @@ pub struct SyncEvent {
     pub timestamp: String,
     pub event_kind: String,
     pub path: String,
+    pub watched_path: String,
 }
 
 pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
@@ -17,8 +19,24 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new(&event.path);
     let file = File::open(path)?;
 
+    let full = Path::new(&event.path).canonicalize().ok().unwrap();
+    let base = Path::new(&event.watched_path).canonicalize().ok().unwrap();
+
+    let rel_path = full
+        .strip_prefix(base)
+        .map_err(|e| format!("Could not strip prefix: {}", e))?;
+
+    //    let meta_path = serde_json::to_string(&format!("/{}", rel_path.display()))?;
+    let meta_path = rel_path
+        .to_path_buf()
+        .into_os_string()
+        .into_string()
+        .unwrap();
+    println!("{}", meta_path);
+
     let form = multipart::Form::new()
         .text("event", serde_json::to_string(event)?)
+        .text("metaPath", meta_path)
         .file("file", &event.path)?;
 
     let res = client
@@ -33,6 +51,26 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
             "Failed to send event! Server responded with: {} ",
             res.status()
         );
+    }
+    Ok(())
+}
+
+pub fn recieve_event() {}
+
+pub fn check_update() -> Result<(), Error> {
+    let client = Client::new();
+
+    println!("Checking for update...");
+    let res = client.get("http://localhost:8080").send()?;
+    if res.status().is_success() {
+        println!("Recieved update = {}", res.status());
+        res.status();
+    } else {
+        eprintln!(
+            "Error gettign update! Server responded with: {}",
+            res.status()
+        );
+        res.status();
     }
     Ok(())
 }

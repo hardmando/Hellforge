@@ -1,1 +1,1 @@
-/home/kira/Hellforge/hellforge/target/debug/hellforge: /home/kira/Hellforge/hellforge/src/logger/comm_handler.rs /home/kira/Hellforge/hellforge/src/logger.rs /home/kira/Hellforge/hellforge/src/main.rs
+/home/kira/Hellforge/hellforge/target/debug/hellforge: /home/kira/Hellforge/hellforge/src/config.rs /home/kira/Hellforge/hellforge/src/logger/comm_handler.rs /home/kira/Hellforge/hellforge/src/logger.rs /home/kira/Hellforge/hellforge/src/main.rs

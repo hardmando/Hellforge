@@ -1,11 +1,12 @@
-mod comm_handler;
+pub mod comm_handler;
 use chrono::Local;
 use comm_handler::{SyncEvent, send_event};
 use notify::Event;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 
-pub fn log_event(event: Event, log: &mut File) {
+pub fn log_event(event: Event, log: &mut File, watched_path: &Path) {
     let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
     let mut sync_event: SyncEvent;
 
@@ -20,6 +21,11 @@ pub fn log_event(event: Event, log: &mut File) {
             timestamp: timestamp.to_string(),
             event_kind: kind,
             path: path.into_os_string().into_string().unwrap(),
+            watched_path: watched_path
+                .to_path_buf()
+                .into_os_string()
+                .into_string()
+                .unwrap(),
         };
 
         match send_event(&sync_event) {
