@@ -61,7 +61,7 @@ pub fn check_update() -> Result<(), Error> {
     let client = Client::new();
 
     println!("Checking for update...");
-    let res = client.get("http://localhost:8080").send()?;
+    let res = client.get("http://localhost:8080/fetch").send()?;
     if res.status().is_success() {
         println!("Recieved update = {}", res.status());
         res.status();

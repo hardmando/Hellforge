@@ -52,8 +52,13 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func handleRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Request Received")
+}
+
 func main() {
 	http.HandleFunc("/event", handleEvent)
+	http.HandleFunc("/fetch", handleRequest)
 	fmt.Println("Listening on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
