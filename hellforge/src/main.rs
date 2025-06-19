@@ -1,10 +1,12 @@
 mod logger;
 use clap::{Parser, Subcommand};
+use logger::comm_handler::{check_update, recieve_event};
 use logger::log_event;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs::{self, OpenOptions};
 use std::path::{self, Path};
 use std::sync::mpsc::channel;
+use std::thread;
 use std::time::Duration;
 mod config;
 use config::{load_config, save_config};
@@ -199,6 +201,14 @@ fn main() -> notify::Result<()> {
     fs::create_dir_all(path)?;
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     watcher.watch(&path, RecursiveMode::Recursive)?;
+
+    thread::spawn(|| {
+        loop {
+            check_update();
+            thread::sleep(Duration::from_millis(5000));
+            ()
+        }
+    });
 
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {

@@ -1,3 +1,4 @@
+use reqwest::Error;
 use reqwest::blocking::Client;
 use reqwest::blocking::multipart;
 use serde::Serialize;
@@ -50,6 +51,26 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
             "Failed to send event! Server responded with: {} ",
             res.status()
         );
+    }
+    Ok(())
+}
+
+pub fn recieve_event() {}
+
+pub fn check_update() -> Result<(), Error> {
+    let client = Client::new();
+
+    println!("Checking for update...");
+    let res = client.get("http://localhost:8080").send()?;
+    if res.status().is_success() {
+        println!("Recieved update = {}", res.status());
+        res.status();
+    } else {
+        eprintln!(
+            "Error gettign update! Server responded with: {}",
+            res.status()
+        );
+        res.status();
     }
     Ok(())
 }
