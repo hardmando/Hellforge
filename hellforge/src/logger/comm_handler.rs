@@ -62,15 +62,14 @@ pub fn check_update() -> Result<(), Error> {
 
     println!("Checking for update...");
     let res = client.get("http://localhost:8080/fetch").send()?;
-    if res.status().is_success() {
-        println!("Recieved update = {}", res.status());
-        res.status();
+    let status = res.status();
+    let text = res.text();
+    if status.is_success() {
+        println!("Recieved update = {}", text.unwrap());
+        status;
     } else {
-        eprintln!(
-            "Error gettign update! Server responded with: {}",
-            res.status()
-        );
-        res.status();
+        eprintln!("Error gettign update! Server responded with: {}", status);
+        status;
     }
     Ok(())
 }

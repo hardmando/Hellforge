@@ -54,6 +54,7 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Request Received")
+	io.WriteString(w, "Hellforge")
 }
 
 func main() {

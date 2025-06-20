@@ -123,3 +123,15 @@
 [2025-06-12 20:20:52] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-12 20:20:52] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
 [2025-06-12 20:20:52] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:57:38] [Create(File)] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:57:38] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:57:38] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:54] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:54] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:54] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:56] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:56] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:58:56] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:59:43] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:59:43] [Modify(Data(Any))] - /home/kira/Hellforge/hellforge/./watched/test
+[2025-06-18 21:59:43] [Access(Close(Write))] - /home/kira/Hellforge/hellforge/./watched/test
