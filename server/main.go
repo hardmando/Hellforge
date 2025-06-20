@@ -48,13 +48,20 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 	meta_path := "/" + r.FormValue("metaPath")
 	os.WriteFile(metaPath, []byte(meta_path), 0666)
 
-	log.Printf("Received Event for %s and saved at %s", event.Path, dst.Name())
+	fmt.Printf("Received Event for %s and saved at %s", event.Path, dst.Name())
 	w.WriteHeader(http.StatusOK)
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Request Received")
-	io.WriteString(w, "Hellforge")
+	files, err := os.ReadDir("./uploads/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		io.WriteString(w, file.Name())
+	}
 }
 
 func main() {
