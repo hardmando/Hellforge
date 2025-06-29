@@ -1,6 +1,6 @@
 mod logger;
 use clap::{Parser, Subcommand};
-use logger::comm_handler::{check_update, recieve_event};
+use logger::comm_handler::poll_for_update;
 use logger::log_event;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs::{self, OpenOptions};
@@ -204,9 +204,11 @@ fn main() -> notify::Result<()> {
 
     thread::spawn(|| {
         loop {
-            check_update();
-            thread::sleep(Duration::from_millis(5000));
-            ()
+            if let Err(e) = poll_for_update() {
+                eprintln!("⚠️ Error during poll: {}", e);
+            }
+
+            thread::sleep(std::time::Duration::from_secs(5));
         }
     });
 
