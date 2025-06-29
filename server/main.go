@@ -47,7 +47,6 @@ func handleEvent(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 
-	// Trim path to watched folder
 	meta_path := "/" + r.FormValue("metaPath")
 	os.WriteFile(metaPath, []byte(meta_path), 0666)
 
@@ -87,7 +86,7 @@ func handlePull(w http.ResponseWriter, r *http.Request) {
 
 		io.Copy(zipEntry, dataFile)
 		os.Remove(dataFilePath)
-		os.Remove(path) // the .meta file
+		os.Remove(path)
 		return err
 	})
 }

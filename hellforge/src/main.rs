@@ -205,7 +205,7 @@ fn main() -> notify::Result<()> {
     thread::spawn(|| {
         loop {
             if let Err(e) = poll_for_update() {
-                eprintln!("⚠️ Error during poll: {}", e);
+                eprintln!("Error during poll: {}", e);
             }
 
             thread::sleep(std::time::Duration::from_secs(5));

@@ -65,7 +65,7 @@ pub fn poll_for_update() -> Result<(), Box<dyn std::error::Error>> {
 pub fn receive_event() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
-    println!("📦 Pulling archive...");
+    println!("Pulling archive...");
     let res = client.get("http://localhost:8080/pull").send()?;
 
     if !res.status().is_success() {
@@ -78,7 +78,7 @@ pub fn receive_event() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i)?;
-        let out_path = format!("./synced/{}", file.name());
+        let out_path = format!("./watched/{}", file.name());
 
         if let Some(parent) = std::path::Path::new(&out_path).parent() {
             std::fs::create_dir_all(parent)?;
@@ -86,24 +86,24 @@ pub fn receive_event() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut out_file = std::fs::File::create(&out_path)?;
         std::io::copy(&mut file, &mut out_file)?;
-        println!("📥 Extracted {}", out_path);
+        println!("Extracted {}", out_path);
     }
 
-    println!("✅ Sync complete.");
+    println!("Sync complete.");
     Ok(())
 }
 
 pub fn check_update() -> Result<bool, reqwest::Error> {
     let client = Client::new();
 
-    println!("🔎 Checking for updates...");
+    println!("Checking for updates...");
     let res = client.get("http://localhost:8080/fetch").send()?;
 
     match res.status() {
         reqwest::StatusCode::OK => {
             let body = res.text()?.trim().to_string();
-            println!("✅ Update available: {}", body);
-            Ok(body == "true") // or parse a real JSON later
+            println!("Update available: {}", body);
+            Ok(body == "true")
         }
         reqwest::StatusCode::NO_CONTENT => {
             println!("🟢 No updates.");
