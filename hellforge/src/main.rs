@@ -1,15 +1,12 @@
-mod logger;
 use clap::{Parser, Subcommand};
-use logger::comm_handler::poll_for_update;
-use logger::log_event;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs::{self, OpenOptions};
 use std::path::{self, Path};
-use std::sync::mpsc::channel;
-use std::thread;
-use std::time::Duration;
 mod config;
 use config::{load_config, save_config};
+pub mod logger;
+pub mod sync_state;
+mod watcher;
 
 #[derive(Parser)]
 #[command(name = "hellforge", about = "File sync service.", version)]
@@ -43,7 +40,7 @@ enum ModeSubcommands {
     Get,
 }
 
-fn main() -> notify::Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let mut watched_path = String::new();
     let mut config = load_config().unwrap_or_default();
@@ -157,9 +154,6 @@ fn main() -> notify::Result<()> {
     //assert_ne!(watched_path.is_empty(), true);
 
     let path = path::Path::new(&watched_path);
-    let log_path = Path::new("./src/log/watch_log.txt");
-    let mut log = OpenOptions::new().append(true).open(&log_path);
-
     println!(
         "
  ╔══════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -196,34 +190,5 @@ fn main() -> notify::Result<()> {
         watched_path, config.mode
     );
 
-    let (tx, rx) = channel();
-
-    fs::create_dir_all(path)?;
-    let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
-    watcher.watch(&path, RecursiveMode::Recursive)?;
-
-    thread::spawn(|| {
-        loop {
-            if let Err(e) = poll_for_update() {
-                eprintln!("Error during poll: {}", e);
-            }
-
-            thread::sleep(std::time::Duration::from_secs(5));
-        }
-    });
-
-    loop {
-        match rx.recv_timeout(Duration::from_secs(1)) {
-            Ok(Ok(event)) => match log {
-                Ok(ref mut file) => {
-                    log_event(event, file, path);
-                }
-                Err(ref e) => {
-                    eprintln!("Error opening watch_log!: {}", e);
-                }
-            },
-            Ok(Err(e)) => eprintln!("Watch Error: {:?}", e),
-            Err(_) => continue,
-        }
-    }
+    watcher::start_watching(&watched_path)
 }
