@@ -25,7 +25,7 @@ impl SyncState {
     }
 
     pub fn calculate_hash(path: &str) -> std::io::Result<String> {
-        let mut file = File::open(path)?;
+        let file = File::open(path)?;
         let mut reader = BufReader::new(file);
         let mut hasher = Sha256::new();
         let mut buffer = [0u8; 4096];

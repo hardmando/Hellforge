@@ -1,8 +1,6 @@
-use reqwest::Error;
 use reqwest::blocking::Client;
 use reqwest::blocking::multipart;
 use serde::Serialize;
-use std::fs::File;
 use std::path::Path;
 
 #[derive(Serialize)]
@@ -13,11 +11,19 @@ pub struct SyncEvent {
     pub watched_path: String,
 }
 
+impl SyncEvent {
+    pub fn new(path: &str, watched_path: String) -> Self {
+        SyncEvent {
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            event_kind: "Modify".to_string(),
+            path: path.to_string(),
+            watched_path,
+        }
+    }
+}
+
 pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
-
-    let path = Path::new(&event.path);
-    let file = File::open(path)?;
 
     let full = Path::new(&event.path).canonicalize().ok().unwrap();
     let base = Path::new(&event.watched_path).canonicalize().ok().unwrap();

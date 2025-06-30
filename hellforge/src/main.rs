@@ -1,7 +1,4 @@
 use clap::{Parser, Subcommand};
-use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
-use std::fs::{self, OpenOptions};
-use std::path::{self, Path};
 mod config;
 use config::{load_config, save_config};
 pub mod logger;
@@ -153,7 +150,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //assert_ne!(watched_path.is_empty(), true);
 
-    let path = path::Path::new(&watched_path);
     println!(
         "
  ╔══════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -190,5 +186,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         watched_path, config.mode
     );
 
-    watcher::start_watching(&watched_path)
+    watcher::start_watching(&watched_path, true)
 }
