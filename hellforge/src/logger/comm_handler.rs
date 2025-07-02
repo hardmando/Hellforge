@@ -1,8 +1,6 @@
-use reqwest::Error;
 use reqwest::blocking::Client;
 use reqwest::blocking::multipart;
 use serde::Serialize;
-use std::fs::File;
 use std::path::Path;
 
 #[derive(Serialize)]
@@ -13,11 +11,19 @@ pub struct SyncEvent {
     pub watched_path: String,
 }
 
+impl SyncEvent {
+    pub fn new(path: &str, watched_path: String) -> Self {
+        SyncEvent {
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            event_kind: "Modify".to_string(),
+            path: path.to_string(),
+            watched_path,
+        }
+    }
+}
+
 pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
-
-    let path = Path::new(&event.path);
-    let file = File::open(path)?;
 
     let full = Path::new(&event.path).canonicalize().ok().unwrap();
     let base = Path::new(&event.watched_path).canonicalize().ok().unwrap();
@@ -55,22 +61,63 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn recieve_event() {}
-
-pub fn check_update() -> Result<(), Error> {
-    let client = Client::new();
-
-    println!("Checking for update...");
-    let res = client.get("http://localhost:8080").send()?;
-    if res.status().is_success() {
-        println!("Recieved update = {}", res.status());
-        res.status();
-    } else {
-        eprintln!(
-            "Error gettign update! Server responded with: {}",
-            res.status()
-        );
-        res.status();
+pub fn poll_for_update() -> Result<(), Box<dyn std::error::Error>> {
+    if check_update()? {
+        receive_event()?;
     }
     Ok(())
+}
+
+pub fn receive_event() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new();
+
+    println!("Pulling archive...");
+    let res = client.get("http://localhost:8080/pull").send()?;
+
+    if !res.status().is_success() {
+        return Err(format!("Server error: {}", res.status()).into());
+    }
+
+    let bytes = res.bytes()?;
+    let reader = std::io::Cursor::new(bytes);
+    let mut archive = zip::ZipArchive::new(reader)?;
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i)?;
+        let out_path = format!("./watched/{}", file.name());
+
+        if let Some(parent) = std::path::Path::new(&out_path).parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        let mut out_file = std::fs::File::create(&out_path)?;
+        std::io::copy(&mut file, &mut out_file)?;
+        println!("Extracted {}", out_path);
+    }
+
+    println!("Sync complete.");
+    Ok(())
+}
+
+pub fn check_update() -> Result<bool, reqwest::Error> {
+    let client = Client::new();
+
+    println!("Checking for updates...");
+    let res = client.get("http://localhost:8080/fetch").send()?;
+
+    match res.status() {
+        reqwest::StatusCode::OK => {
+            let body = res.text()?.trim().to_string();
+            println!("Update available: {}", body);
+            Ok(body == "true")
+        }
+        reqwest::StatusCode::NO_CONTENT => {
+            println!("🟢 No updates.");
+            Ok(false)
+        }
+        other => {
+            eprintln!("❌ Server error: {}", other);
+            Ok(false)
+        }
+    }
 }
