@@ -28,9 +28,9 @@ pub fn log_event(event: Event, log: &mut File, watched_path: &Path) {
                 .unwrap(),
         };
 
-        match send_event(&sync_event) {
-            Ok(()) => println!("Succsesfully sent!"),
-            Err(e) => eprintln!("Error! {}", e),
-        };
+        //        match send_event(&sync_event) {
+        //            Ok(()) => println!("Succsesfully sent!"),
+        //            Err(e) => eprintln!("Error! {}", e),
+        //        };
     }
 }

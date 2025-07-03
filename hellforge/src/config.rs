@@ -5,6 +5,7 @@ use std::path::PathBuf;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
     pub watched_path: String,
+    pub server_ip: String,
     pub mode: String,
     pub interval_in_secs: u64,
 }
@@ -13,6 +14,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             watched_path: "./watched".into(),
+            server_ip: "192.168.125".to_string(),
             mode: "instant".to_string(),
             interval_in_secs: 10,
         }

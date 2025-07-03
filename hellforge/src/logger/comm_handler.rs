@@ -3,6 +3,8 @@ use reqwest::blocking::multipart;
 use serde::Serialize;
 use std::path::Path;
 
+use crate::config::Config;
+
 #[derive(Serialize)]
 pub struct SyncEvent {
     pub timestamp: String,
@@ -22,7 +24,7 @@ impl SyncEvent {
     }
 }
 
-pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
+pub fn send_event(event: &SyncEvent, server_ip: &String) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
     let full = Path::new(&event.path).canonicalize().ok().unwrap();
@@ -61,18 +63,24 @@ pub fn send_event(event: &SyncEvent) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn poll_for_update() -> Result<(), Box<dyn std::error::Error>> {
+pub fn poll_for_update(server_ip: &str) -> Result<(), Box<dyn std::error::Error>> {
     if check_update()? {
-        receive_event()?;
+        receive_event(server_ip)?;
     }
     Ok(())
 }
 
-pub fn receive_event() -> Result<(), Box<dyn std::error::Error>> {
+pub fn receive_event(server_ip: &str) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
+    let server_ip_str = server_ip;
+    let http = "http://";
+    let port = ":8443";
+    let command = "/fetch";
     println!("Pulling archive...");
-    let res = client.get("http://localhost:8080/pull").send()?;
+    let res = client
+        .get(format!("{http}{server_ip_str}{port}{command}"))
+        .send()?;
 
     if !res.status().is_success() {
         return Err(format!("Server error: {}", res.status()).into());

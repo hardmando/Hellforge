@@ -113,6 +113,6 @@ func main() {
 	http.HandleFunc("/event", handleEvent)
 	http.HandleFunc("/fetch", handleFetch)
 	http.HandleFunc("/pull", handlePull)
-	fmt.Println("Listening on :8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println("Listening on http://localhost:8443...")
+	log.Fatal(http.ListenAndServeTLS(":8443", "cert.pem", "key.pem", nil))
 }
