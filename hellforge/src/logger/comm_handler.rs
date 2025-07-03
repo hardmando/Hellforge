@@ -64,7 +64,7 @@ pub fn send_event(event: &SyncEvent, server_ip: &String) -> Result<(), Box<dyn s
 }
 
 pub fn poll_for_update(server_ip: &str) -> Result<(), Box<dyn std::error::Error>> {
-    if check_update()? {
+    if check_update(server_ip)? {
         receive_event(server_ip)?;
     }
     Ok(())
@@ -107,11 +107,18 @@ pub fn receive_event(server_ip: &str) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-pub fn check_update() -> Result<bool, reqwest::Error> {
+pub fn check_update(server_ip: &str) -> Result<bool, reqwest::Error> {
     let client = Client::new();
 
+    let server_ip_str = server_ip;
+    let http = "http://";
+    let port = ":8443";
+    let command = "/fetch";
+
     println!("Checking for updates...");
-    let res = client.get("http://localhost:8080/fetch").send()?;
+    let res = client
+        .get(format!("{http}{server_ip_str}{port}{command}"))
+        .send()?;
 
     match res.status() {
         reqwest::StatusCode::OK => {
