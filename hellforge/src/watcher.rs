@@ -1,15 +1,71 @@
+use crate::config;
 use crate::logger::comm_handler::{SyncEvent, poll_for_update, send_event};
 use crate::logger::log_event;
 use crate::sync_state::{self, SyncState};
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs;
 use std::fs::OpenOptions;
+use std::io::{Write, stdin, stdout};
 use std::path::Path;
 use std::sync::mpsc::channel;
 use std::thread;
 use std::time::Duration;
 
-pub fn start_watching(path: &str, log_enabled: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn start_watching(
+    config: &config::Config,
+    path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match config.mode.as_str() {
+        "instant" => {
+            println!("Running in INSTANT mode");
+
+            thread::spawn(|| {
+                loop {
+                    if let Err(e) = poll_for_update() {
+                        eprintln!("Error during poll: {}", e);
+                    }
+
+                    thread::sleep(std::time::Duration::from_secs(5));
+                }
+            });
+        }
+        "auto" => {
+            println!(
+                "Running in AUTO mode (every {} seconds)",
+                config.interval_in_secs
+            );
+
+            let interval_in_secs = config.interval_in_secs;
+            thread::spawn(move || {
+                loop {
+                    if let Err(e) = poll_for_update() {
+                        eprintln!("Error during poll: {}", e);
+                    }
+
+                    thread::sleep(std::time::Duration::from_secs(interval_in_secs));
+                }
+            });
+        }
+        "manual" => {
+            println!("Running in MANUAL mode");
+
+            loop {
+                println!(">");
+                let mut input = String::new();
+                let _ = stdout().flush();
+                stdin().read_line(&mut input).expect("Unknown command");
+                if input.trim_end() == "fetch" {
+                    if let Err(e) = poll_for_update() {
+                        eprintln!("Error during poll: {}", e);
+                    }
+                }
+            }
+        }
+        _ => {
+            eprintln!("Unknown mode: {}", config.mode)
+        }
+    }
+
     let (tx, rx) = channel();
 
     let log_path = Path::new("./src/log/watch_log.txt");
@@ -22,20 +78,10 @@ pub fn start_watching(path: &str, log_enabled: bool) -> Result<(), Box<dyn std::
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     watcher.watch(file_path, RecursiveMode::Recursive)?;
 
-    thread::spawn(|| {
-        loop {
-            if let Err(e) = poll_for_update() {
-                eprintln!("Error during poll: {}", e);
-            }
-
-            thread::sleep(std::time::Duration::from_secs(5));
-        }
-    });
-
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {
             Ok(Ok(event)) => {
-                handle_event(event, &mut sync_state, path, log_enabled);
+                handle_event(event, &mut sync_state, path, true);
             }
             Ok(Err(e)) => eprintln!("Watch Error: {:?}", e),
             Err(_) => continue,
