@@ -1,0 +1,5 @@
+{
+  "watched_path": "./watched",
+  "mode": "manual",
+  "interval_in_secs": 10
+}
