@@ -4,17 +4,17 @@ use std::path::PathBuf;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
-    pub server: String,
+    pub watched_path: String,
     pub mode: String,
-    pub interval_in_seconds: u64,
+    pub interval_in_secs: u64,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            server: "localhost:8080".to_string(),
+            watched_path: "./watched".into(),
             mode: "instant".to_string(),
-            interval_in_seconds: 69,
+            interval_in_secs: 10,
         }
     }
 }
@@ -23,14 +23,13 @@ pub fn config_path() -> PathBuf {
     dirs::config_dir().unwrap().join("hellforge/config.json")
 }
 
-pub fn load_config() -> Option<Config> {
-    let path = config_path();
-    let data = fs::read_to_string(path).ok()?;
-    serde_json::from_str(&data).ok()
+pub fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
+    let data = fs::read_to_string("hellforge_config.json")?;
+    Ok(serde_json::from_str(&data)?)
 }
 
-pub fn save_config(config: &Config) -> std::io::Result<()> {
-    let path = config_path();
-    fs::create_dir_all(path.parent().unwrap())?;
-    fs::write(path, serde_json::to_string_pretty(config)?)
+pub fn save_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
+    let data = serde_json::to_string_pretty(config)?;
+    fs::write("hellforge_config.json", data)?;
+    Ok(())
 }
